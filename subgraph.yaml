@@ -1,0 +1,26 @@
+specVersion: 0.0.2
+description: MoonCatRescue
+repository: https://github.com/RENTFT/subgraph-mooncat
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: MoonCatRescue
+    network: mainnet
+    source:
+      address: "0x60cd862c9c687a9de49aecdc3a99b74a4fc54ab6"
+      abi: MoonCatRescue
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - MoonCatRescue
+      abis:
+        - name: MoonCatRescue
+          file: ./build/contracts/MoonCatRescue.json
+      eventHandlers:
+        - event: CatAdopted(indexed bytes5,uint256,indexed address,indexed address)
+          handler: handleCatAdopted
+      file: ./mappings/core.ts

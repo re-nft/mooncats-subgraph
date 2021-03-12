@@ -1,0 +1,9 @@
+type Cat @entity {
+  id: ID!
+}
+
+type MoonRescuer @entity {
+  # id is owner's address
+  id: ID!
+  cats: [Cat!]
+}
