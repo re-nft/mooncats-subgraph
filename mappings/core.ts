@@ -1,45 +1,72 @@
-import { CatAdopted, CatRescued } from "../generated/MoonCatRescue/MoonCatRescue";
+import { log } from "@graphprotocol/graph-ts";
+
+import {
+  CatAdopted,
+  CatRescued,
+} from "../generated/MoonCatRescue/MoonCatRescue";
 import { fetchCat, fetchMoonRescuer } from "./helpers";
 
 export function handleCatAdopted(event: CatAdopted): void {
   let catAdoptedParams = event.params;
-  // will create a cat if it doesn't exist
-  let cat = fetchCat(catAdoptedParams.catId);
-  let moonRescuer = fetchMoonRescuer(catAdoptedParams.to);
-  let poorFella = fetchMoonRescuer(catAdoptedParams.from);
 
-  let winnerCats = moonRescuer.cats;
-  let poorSapCats = poorFella.cats;
+  let catId = <string>catAdoptedParams.catId.toHexString();
 
-  let poorSapCatsRemoveIx = poorSapCats.indexOf(
-    catAdoptedParams.catId.toHexString()
-  );
-  poorSapCats.splice(poorSapCatsRemoveIx, 1);
-  poorFella.cats = poorSapCats;
+  let cat = fetchCat(catId);
+  let to = fetchMoonRescuer(catAdoptedParams.to);
+  let from = fetchMoonRescuer(catAdoptedParams.from);
 
-  winnerCats.push(catAdoptedParams.catId.toHexString());
-  moonRescuer.cats = winnerCats;
+  log.debug("\n[START - handleCatAdopted]\nto{}\nfrom{}\ncat{}\n", [
+    to.cats.join(","),
+    from.cats.join(", cat id:"),
+    cat.id.concat(" - in wallet: ").concat(cat.inMyWallet ? "true" : "false"),
+  ]);
+
+  let toCatsCopy = to.cats;
+  let fromCatsCopy = from.cats;
+
+  let fromCatsIx = fromCatsCopy.indexOf(catId);
+  fromCatsCopy.splice(fromCatsIx, 1);
+  from.cats = fromCatsCopy;
+
+  toCatsCopy.push(catId);
+  to.cats = toCatsCopy;
 
   cat.inMyWallet = true;
 
+  log.debug("\n[END - handleCatAdopted]\nto{}\nfrom{}\ncat{}\n", [
+    to.cats.join(","),
+    from.cats.join(","),
+    cat.id.concat(" - in wallet: ").concat(cat.inMyWallet ? "true" : "false"),
+  ]);
+
   cat.save();
-  poorFella.save();
-  moonRescuer.save();
+  to.save();
+  from.save();
 }
 
-// CatRescued(address indexed to, bytes5 indexed catId)
 export function handleCatRescued(event: CatRescued): void {
   let catRescuedParams = event.params;
-  // will create a cat if it doesn't exist
-  let cat = fetchCat(catRescuedParams.catId);
-  let moonRescuer = fetchMoonRescuer(catRescuedParams.to);
 
-  let winnerCats = moonRescuer.cats;
-  winnerCats.push(catRescuedParams.catId.toHexString());
-  moonRescuer.cats = winnerCats;
+  let catId = <string>catRescuedParams.catId.toHexString();
+  let cat = fetchCat(catId);
+  let to = fetchMoonRescuer(catRescuedParams.to);
+
+  log.debug("\n[START - handleCatRescued]\nto{}\ncat{}\n", [
+    to.cats.join(","),
+    cat.id.concat(" - in wallet: ").concat(cat.inMyWallet ? "true" : "false"),
+  ]);
+
+  let winnerCats = to.cats;
+  winnerCats.push(catId);
+  to.cats = winnerCats;
 
   cat.inMyWallet = false;
 
+  log.debug("\n[END - handleCatRescued]\nto{}\ncat{}\n", [
+    to.cats.join(","),
+    cat.id.concat(" - in wallet: ").concat(cat.inMyWallet ? "true" : "false"),
+  ]);
+
   cat.save();
-  moonRescuer.save();
+  to.save();
 }

@@ -1,11 +1,10 @@
-import { Address, Bytes } from "@graphprotocol/graph-ts";
+import { Address } from "@graphprotocol/graph-ts";
 import { Cat, MoonRescuer } from "../generated/schema";
 
-// todo: base64 image in here as well ?
-export const fetchCat = (id: Bytes): Cat => {
-  let cat = Cat.load(id.toHexString());
+export const fetchCat = (id: string): Cat => {
+  let cat = Cat.load(id);
   if (cat === null) {
-    cat = new Cat(id.toHexString());
+    cat = new Cat(id);
     cat.inMyWallet = false;
     cat.save();
   }
