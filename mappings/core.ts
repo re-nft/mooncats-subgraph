@@ -21,8 +21,8 @@ export function handleCatAdopted(event: CatAdopted): void {
   //   cat.id.concat(" - in wallet: ").concat(cat.inMyWallet ? "true" : "false"),
   // ]);
 
-  let toCatsCopy = to.cats;
-  let fromCatsCopy = from.cats;
+  let toCatsCopy = to.cats.slice(0);
+  let fromCatsCopy = from.cats.slice(0);
 
   log.info("[handleCatAdopted] looking for {}", [cat.id]);
 
@@ -58,7 +58,7 @@ export function handleCatRescued(event: CatRescued): void {
   //   cat.id.concat(" - in wallet: ").concat(cat.inMyWallet ? "true" : "false"),
   // ]);
 
-  let winnerCats = to.cats;
+  let winnerCats = to.cats.slice(0);
   winnerCats.push(cat.id);
   to.cats = winnerCats;
 
