@@ -2,7 +2,7 @@ specVersion: 0.0.2
 description: MoonCatRescue
 repository: https://github.com/RENTFT/subgraph-mooncat
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: MoonCatRescue
@@ -19,10 +19,10 @@ dataSources:
         - MoonCatRescue
       abis:
         - name: MoonCatRescue
-          file: ./build/contracts/MoonCatRescue.json
+          file: MoonCatRescue/build/contracts/MoonCatRescue.json
       eventHandlers:
         - event: CatAdopted(indexed bytes5,uint256,indexed address,indexed address)
           handler: handleCatAdopted
         - event: CatRescued(indexed address,indexed bytes5)
           handler: handleCatRescued
-      file: ./mappings/core.ts
+      file: MoonCatRescue/MoonCatRescue.wasm
