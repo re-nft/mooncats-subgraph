@@ -22,3 +22,8 @@ type AdoptionRequested @entity {
   price: BigInt!
   from: Bytes!
 }
+
+type GenesisCats @entity {
+  id: ID!
+  cats: [Cat!]!
+}

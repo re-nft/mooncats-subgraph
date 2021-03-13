@@ -1,9 +1,10 @@
-import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
   Cat,
   MoonRescuer,
   AdoptionRequested,
   AdoptionOffered,
+  GenesisCats,
 } from "../generated/schema";
 
 export const fetchCat = (id: string): Cat => {
@@ -37,9 +38,10 @@ export const createAdoptionRequested = (
     adoptionRequest = new AdoptionRequested(id);
     adoptionRequest.price = price;
     adoptionRequest.from = from;
+  } else {
+    adoptionRequest.price = price;
+    adoptionRequest.from = from;
   }
-  adoptionRequest.price = price;
-  adoptionRequest.from = from;
   adoptionRequest.save();
   return <AdoptionRequested>adoptionRequest;
 };
@@ -54,9 +56,25 @@ export const createAdoptionOffered = (
     adoptionOffer = new AdoptionOffered(id);
     adoptionOffer.price = price;
     adoptionOffer.toAddress = toAddress;
+  } else {
+    adoptionOffer.price = price;
+    adoptionOffer.toAddress = toAddress;
   }
-  adoptionOffer.price = price;
-  adoptionOffer.toAddress = toAddress;
   adoptionOffer.save();
   return <AdoptionOffered>adoptionOffer;
+};
+
+export const fetchGenesisCats = (cats: Bytes[]): GenesisCats => {
+  let genesisCats = GenesisCats.load("0");
+
+  if (genesisCats == null) {
+    genesisCats = new GenesisCats("0");
+    // genesisCats.cats = cats;
+    genesisCats.save();
+  }
+
+  let allGenesisCats = genesisCats.cats.slice(0);
+  // allGenesisCats.push(cat.id);
+  genesisCats.cats = allGenesisCats;
+  return <GenesisCats>genesisCats;
 };

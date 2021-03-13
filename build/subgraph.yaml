@@ -33,4 +33,6 @@ dataSources:
           handler: handleAdoptionOfferCancelled
         - event: AdoptionRequested(indexed bytes5,uint256,indexed address)
           handler: handleAdoptionRequested
+        - event: AdoptionRequestCancelled(indexed bytes5)
+          handler: handleAdoptionRequestCancelled
       file: MoonCatRescue/MoonCatRescue.wasm

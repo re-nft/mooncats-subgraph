@@ -6,14 +6,17 @@ import {
   CatRescued,
   CatNamed,
   AdoptionOffered,
-  AdoptionRequested,
   AdoptionOfferCancelled,
+  AdoptionRequested,
+  AdoptionRequestCancelled,
+  // GenesisCatsAdded,
 } from "../generated/MoonCatRescue/MoonCatRescue";
 import {
   fetchCat,
   fetchMoonRescuer,
   createAdoptionOffered,
   createAdoptionRequested,
+  // fetchGenesisCats
 } from "./helpers";
 
 export function handleCatAdopted(event: CatAdopted): void {
@@ -110,6 +113,16 @@ export function handleAdoptionOffered(event: AdoptionOffered): void {
   cat.save();
 }
 
+export function handleAdoptionOfferCancelled(
+  event: AdoptionOfferCancelled
+): void {
+  let params = event.params;
+  let catId = params.catId.toHexString();
+  let cat = fetchCat(catId);
+  cat.adoptionOffered = null;
+  cat.save();
+}
+
 // * I like a cat, and I am offering a cat owner (id.split('::')[1]), to buy it from (me) for price
 export function handleAdoptionRequested(event: AdoptionRequested): void {
   let params = event.params;
@@ -125,12 +138,12 @@ export function handleAdoptionRequested(event: AdoptionRequested): void {
   cat.save();
 }
 
-export function handleAdoptionOfferCancelled(
-  event: AdoptionOfferCancelled
+export function handleAdoptionRequestCancelled(
+  event: AdoptionRequestCancelled
 ): void {
   let params = event.params;
   let catId = params.catId.toHexString();
   let cat = fetchCat(catId);
-  cat.adoptionOffered = null;
+  cat.adoptionRequested = null;
   cat.save();
 }
