@@ -6,6 +6,7 @@ export const fetchCat = (id: Bytes): Cat => {
   let cat = Cat.load(id.toHexString());
   if (cat === null) {
     cat = new Cat(id.toHexString());
+    cat.inMyWallet = false;
     cat.save();
   }
   return <Cat>cat;
