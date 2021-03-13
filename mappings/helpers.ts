@@ -7,23 +7,22 @@ import {
   GenesisCats,
 } from "../generated/schema";
 
-export const fetchCat = (id: string): Cat => {
-  let cat = Cat.load(id);
+export const fetchCat = (id: Bytes): Cat => {
+  let _id = id.toHexString();
+  let cat = Cat.load(_id);
   if (cat === null) {
-    cat = new Cat(id);
+    cat = new Cat(_id);
     cat.inWallet = false;
-    cat.save();
   }
   return <Cat>cat;
 };
 
-export const fetchMoonRescuer = (address: Address): MoonRescuer => {
+export const fetchMoonRescuer = (address: Bytes): MoonRescuer => {
   let _address = address.toHexString();
   let moonRescuer = MoonRescuer.load(_address);
   if (moonRescuer === null) {
     moonRescuer = new MoonRescuer(_address);
     moonRescuer.cats = new Array<string>();
-    moonRescuer.save();
   }
   return <MoonRescuer>moonRescuer;
 };
@@ -42,7 +41,6 @@ export const createAdoptionRequested = (
     adoptionRequest.price = price;
     adoptionRequest.from = from;
   }
-  adoptionRequest.save();
   return <AdoptionRequested>adoptionRequest;
 };
 
@@ -60,7 +58,6 @@ export const createAdoptionOffered = (
     adoptionOffer.price = price;
     adoptionOffer.toAddress = toAddress;
   }
-  adoptionOffer.save();
   return <AdoptionOffered>adoptionOffer;
 };
 

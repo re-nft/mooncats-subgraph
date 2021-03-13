@@ -21,69 +21,47 @@ import {
 
 export function handleCatAdopted(event: CatAdopted): void {
   let catAdoptedParams = event.params;
-
-  let catId = catAdoptedParams.catId.toHexString();
+  let catId = catAdoptedParams.catId;
 
   let cat = fetchCat(catId);
-  let to = fetchMoonRescuer(catAdoptedParams.to);
   let from = fetchMoonRescuer(catAdoptedParams.from);
+  let to = fetchMoonRescuer(catAdoptedParams.to);
 
-  // log.debug("\n[START - handleCatAdopted]\nto{}\nfrom{}\ncat{}\n", [
-  //   to.cats.join(","),
-  //   from.cats.join(", cat id:"),
-  //   cat.id.concat(" - in wallet: ").concat(cat.inMyWallet ? "true" : "false"),
-  // ]);
+  let toCatsCopy = to.cats;
+  let fromCatsCopy = from.cats;
 
-  let toCatsCopy = to.cats.slice(0);
-  let fromCatsCopy = from.cats.slice(0);
-
-  // log.info("[handleCatAdopted] looking for {}", [cat.id]);
-
-  let fromCatsIx = fromCatsCopy.indexOf(cat.id);
-  fromCatsCopy.splice(fromCatsIx, 1);
-  from.cats = fromCatsCopy;
-
-  toCatsCopy.push(catId);
-  to.cats = toCatsCopy;
-
+  if (from.id !== to.id) {
+    let fromCatsIx = fromCatsCopy.indexOf(cat.id);
+    fromCatsCopy.splice(fromCatsIx, 1);
+    from.cats = fromCatsCopy;
+    from.save();
+    toCatsCopy.push(cat.id);
+    to.cats = toCatsCopy;
+    to.save();
+  } else {
+    let ix = toCatsCopy.indexOf(cat.id);
+    if (ix === -1) {
+      toCatsCopy.push(cat.id);
+      to.cats = toCatsCopy;
+      to.save();
+    }
+  }
   cat.inWallet = true;
-
-  // log.debug("\n[END - handleCatAdopted]\nto{}\nfrom{}\ncat{}\n", [
-  //   to.cats.join(","),
-  //   from.cats.join(","),
-  //   cat.id.concat(" - in wallet: ").concat(cat.inMyWallet ? "true" : "false"),
-  // ]);
-
   cat.save();
-  to.save();
-  from.save();
 }
-// log.debug("\n[START <Int32Array>ction handleAdoptionOfferCanceleld(
-//   event: AdoptionOfferCancelled
-// ): void {
 
 export function handleCatRescued(event: CatRescued): void {
   let catRescuedParams = event.params;
+  let catId = catRescuedParams.catId;
 
-  let catId = catRescuedParams.catId.toHexString();
   let cat = fetchCat(catId);
   let to = fetchMoonRescuer(catRescuedParams.to);
 
-  // log.debug("\n[START - handleCatRescued]\nto{}\ncat{}\n", [
-  //   to.cats.join(","),
-  //   cat.id.concat(" - in wallet: ").concat(cat.inMyWallet ? "true" : "false"),
-  // ]);
-
-  let winnerCats = to.cats.slice(0);
-  winnerCats.push(cat.id);
-  to.cats = winnerCats;
+  let toCatsCopy = to.cats;
+  toCatsCopy.push(cat.id);
+  to.cats = toCatsCopy;
 
   cat.inWallet = false;
-
-  // log.debug("\n[END - handleCatRescued]\nto{}\ncat{}\n", [
-  //   to.cats.join(","),
-  //   cat.id.concat(" - in wallet: ").concat(cat.inMyWallet ? "true" : "false"),
-  // ]);
 
   cat.save();
   to.save();
@@ -91,7 +69,7 @@ export function handleCatRescued(event: CatRescued): void {
 
 export function handleCatNamed(event: CatNamed): void {
   let catNamedParams = event.params;
-  let catId = catNamedParams.catId.toHexString();
+  let catId = catNamedParams.catId;
   let cat = fetchCat(catId);
   cat.name = catNamedParams.catName.toHexString();
   cat.save();
@@ -101,7 +79,7 @@ export function handleCatNamed(event: CatNamed): void {
 // you as the owner, are offering someone, to buy the cat from you
 export function handleAdoptionOffered(event: AdoptionOffered): void {
   let params = event.params;
-  let catId = params.catId.toHexString();
+  let catId = params.catId;
   let cat = fetchCat(catId);
   let adoptionOffer = createAdoptionOffered(
     cat.id,
@@ -117,16 +95,16 @@ export function handleAdoptionOfferCancelled(
   event: AdoptionOfferCancelled
 ): void {
   let params = event.params;
-  let catId = params.catId.toHexString();
+  let catId = params.catId;
   let cat = fetchCat(catId);
   cat.adoptionOffered = null;
   cat.save();
 }
 
-// * I like a cat, and I am offering a cat owner (id.split('::')[1]), to buy it from (me) for price
+// * I like a cat, and I am offering a cat owner, to buy it from (me) for price
 export function handleAdoptionRequested(event: AdoptionRequested): void {
   let params = event.params;
-  let catId = params.catId.toHexString();
+  let catId = params.catId;
   let cat = fetchCat(catId);
   let adoptionRequest = createAdoptionRequested(
     cat.id,
@@ -142,7 +120,7 @@ export function handleAdoptionRequestCancelled(
   event: AdoptionRequestCancelled
 ): void {
   let params = event.params;
-  let catId = params.catId.toHexString();
+  let catId = params.catId;
   let cat = fetchCat(catId);
   cat.adoptionRequested = null;
   cat.save();
