@@ -49,7 +49,7 @@ export function handleCatAdopted(event: CatAdopted): void {
 export function handleCatRescued(event: CatRescued): void {
   let catRescuedParams = event.params;
 
-  let catId = <String>catRescuedParams.catId.toHexString();
+  let catId = catRescuedParams.catId.toHexString();
   let cat = fetchCat(catId);
   let to = fetchMoonRescuer(catRescuedParams.to);
 
