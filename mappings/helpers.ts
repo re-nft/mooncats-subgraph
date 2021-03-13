@@ -12,9 +12,10 @@ export const fetchCat = (id: string): Cat => {
 };
 
 export const fetchMoonRescuer = (address: Address): MoonRescuer => {
-  let moonRescuer = MoonRescuer.load(address.toHexString());
+  let _address = address.toHexString();
+  let moonRescuer = MoonRescuer.load(_address);
   if (moonRescuer === null) {
-    moonRescuer = new MoonRescuer(address.toHexString());
+    moonRescuer = new MoonRescuer(_address);
     moonRescuer.cats = new Array<string>();
     moonRescuer.save();
   }
