@@ -1,10 +1,24 @@
 type Cat @entity {
   id: ID!
-  inMyWallet: Boolean!
+  name: String
+  adoptionOffer: AdoptionOffer
+  adoptionRequest: AdoptionRequest
+  inWallet: Boolean!
 }
 
 type MoonRescuer @entity {
-  # id is owner's address
   id: ID!
   cats: [Cat!]
+}
+
+type AdoptionOffer @entity {
+  id: ID!
+  price: BigInt!
+  toAddress: Bytes!
+}
+
+type AdoptionRequest @entity {
+  id: ID!
+  from: Bytes!
+  price: BigInt!
 }

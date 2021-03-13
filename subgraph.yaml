@@ -25,4 +25,12 @@ dataSources:
           handler: handleCatAdopted
         - event: CatRescued(indexed address,indexed bytes5)
           handler: handleCatRescued
+        - event: CatNamed(indexed bytes5,bytes32)
+          handler: handleCatNamed
+        - event: AdoptionOffered(indexed bytes5,uint256,indexed address)
+          handler: handleAdoptionOffered
+        - event: AdoptionOfferCancelled(indexed bytes5)
+          handler: handleAdoptionOfferCancelled
+        - event: AdoptionRequested(indexed bytes5,uint256,indexed address)
+          handler: handleAdoptionRequested
       file: ./mappings/core.ts

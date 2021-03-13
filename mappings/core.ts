@@ -3,8 +3,17 @@ import { log } from "@graphprotocol/graph-ts";
 import {
   CatAdopted,
   CatRescued,
+  CatNamed,
+  AdoptionOffered,
+  AdoptionOfferCancelled,
+  AdoptionRequested,
 } from "../generated/MoonCatRescue/MoonCatRescue";
-import { fetchCat, fetchMoonRescuer } from "./helpers";
+import {
+  fetchCat,
+  fetchMoonRescuer,
+  createAdoptionRequest,
+  createAdoptionOffer,
+} from "./helpers";
 
 export function handleCatAdopted(event: CatAdopted): void {
   let catAdoptedParams = event.params;
@@ -33,7 +42,7 @@ export function handleCatAdopted(event: CatAdopted): void {
   toCatsCopy.push(catId);
   to.cats = toCatsCopy;
 
-  cat.inMyWallet = true;
+  cat.inWallet = true;
 
   // log.debug("\n[END - handleCatAdopted]\nto{}\nfrom{}\ncat{}\n", [
   //   to.cats.join(","),
@@ -62,7 +71,7 @@ export function handleCatRescued(event: CatRescued): void {
   winnerCats.push(cat.id);
   to.cats = winnerCats;
 
-  cat.inMyWallet = false;
+  cat.inWallet = false;
 
   // log.debug("\n[END - handleCatRescued]\nto{}\ncat{}\n", [
   //   to.cats.join(","),
@@ -71,4 +80,55 @@ export function handleCatRescued(event: CatRescued): void {
 
   cat.save();
   to.save();
+}
+
+export function handleCatNamed(event: CatNamed): void {
+  let catNamedParams = event.params;
+  let catId = catNamedParams.catId.toHexString();
+  let cat = fetchCat(catId);
+  cat.name = catNamedParams.catName.toHexString();
+  cat.save();
+}
+
+// you as the owner, are offering someone, to buy the cat from you
+export function handleAdoptionOffered(event: AdoptionOffered): void {
+  let params = event.params;
+  let catId = params.catId.toHexString();
+  let cat = fetchCat(catId);
+
+  // since adoption offers are overwritten, there is no danger in using this id
+  let adoptionOfferId = event.transaction.hash
+    .toHexString()
+    .concat("::")
+    .concat(cat.id);
+
+  createAdoptionOffer(adoptionOfferId, params.price, params.toAddress);
+  cat.adoptionOffer = adoptionOfferId;
+  cat.save();
+}
+
+export function handleAdoptionOfferCanceleld(
+  event: AdoptionOfferCancelled
+): void {
+  let params = event.params;
+  let catId = params.catId.toHexString();
+  let cat = fetchCat(catId);
+  cat.adoptionOffer = null;
+  cat.save();
+}
+
+export function handleAdoptionRequested(event: AdoptionRequested): void {
+  let params = event.params;
+  let catId = params.catId.toHexString();
+  let cat = fetchCat(catId);
+
+  let adoptionRequestId = event.transaction.hash
+    .toHexString()
+    .concat("::")
+    .concat(cat.id);
+
+  createAdoptionRequest(adoptionRequestId, params.from, params.price);
+
+  cat.adoptionRequest = adoptionRequestId;
+  cat.save();
 }
