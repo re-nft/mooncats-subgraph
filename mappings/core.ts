@@ -1,18 +1,19 @@
-import { log } from "@graphprotocol/graph-ts";
+// import { log, BigInt } from "@graphprotocol/graph-ts";
+import { BigInt } from "@graphprotocol/graph-ts";
 
 import {
   CatAdopted,
   CatRescued,
   CatNamed,
   AdoptionOffered,
-  AdoptionOfferCancelled,
   AdoptionRequested,
+  AdoptionOfferCancelled,
 } from "../generated/MoonCatRescue/MoonCatRescue";
 import {
   fetchCat,
   fetchMoonRescuer,
-  createAdoptionRequest,
-  createAdoptionOffer,
+  createAdoptionOffered,
+  createAdoptionRequested,
 } from "./helpers";
 
 export function handleCatAdopted(event: CatAdopted): void {
@@ -33,7 +34,7 @@ export function handleCatAdopted(event: CatAdopted): void {
   let toCatsCopy = to.cats.slice(0);
   let fromCatsCopy = from.cats.slice(0);
 
-  log.info("[handleCatAdopted] looking for {}", [cat.id]);
+  // log.info("[handleCatAdopted] looking for {}", [cat.id]);
 
   let fromCatsIx = fromCatsCopy.indexOf(cat.id);
   fromCatsCopy.splice(fromCatsIx, 1);
@@ -54,6 +55,9 @@ export function handleCatAdopted(event: CatAdopted): void {
   to.save();
   from.save();
 }
+// log.debug("\n[START <Int32Array>ction handleAdoptionOfferCanceleld(
+//   event: AdoptionOfferCancelled
+// ): void {
 
 export function handleCatRescued(event: CatRescued): void {
   let catRescuedParams = event.params;
@@ -90,45 +94,43 @@ export function handleCatNamed(event: CatNamed): void {
   cat.save();
 }
 
+// * I own a cat, and I am offering toAddress to buy it from me for price
 // you as the owner, are offering someone, to buy the cat from you
 export function handleAdoptionOffered(event: AdoptionOffered): void {
   let params = event.params;
   let catId = params.catId.toHexString();
   let cat = fetchCat(catId);
-
-  // since adoption offers are overwritten, there is no danger in using this id
-  let adoptionOfferId = event.transaction.hash
-    .toHexString()
-    .concat("::")
-    .concat(cat.id);
-
-  createAdoptionOffer(adoptionOfferId, params.price, params.toAddress);
-  cat.adoptionOffer = adoptionOfferId;
+  let adoptionOffer = createAdoptionOffered(
+    cat.id,
+    params.price,
+    params.toAddress
+  );
+  cat.adoptionOffered = adoptionOffer.id;
+  adoptionOffer.save();
   cat.save();
 }
 
-export function handleAdoptionOfferCanceleld(
+// * I like a cat, and I am offering a cat owner (id.split('::')[1]), to buy it from (me) for price
+export function handleAdoptionRequested(event: AdoptionRequested): void {
+  let params = event.params;
+  let catId = params.catId.toHexString();
+  let cat = fetchCat(catId);
+  let adoptionRequest = createAdoptionRequested(
+    cat.id,
+    params.price,
+    params.from
+  );
+  cat.adoptionRequested = adoptionRequest.id;
+  adoptionRequest.save();
+  cat.save();
+}
+
+export function handleAdoptionOfferCancelled(
   event: AdoptionOfferCancelled
 ): void {
   let params = event.params;
   let catId = params.catId.toHexString();
   let cat = fetchCat(catId);
-  cat.adoptionOffer = null;
-  cat.save();
-}
-
-export function handleAdoptionRequested(event: AdoptionRequested): void {
-  let params = event.params;
-  let catId = params.catId.toHexString();
-  let cat = fetchCat(catId);
-
-  let adoptionRequestId = event.transaction.hash
-    .toHexString()
-    .concat("::")
-    .concat(cat.id);
-
-  createAdoptionRequest(adoptionRequestId, params.from, params.price);
-
-  cat.adoptionRequest = adoptionRequestId;
+  cat.adoptionOffered = null;
   cat.save();
 }

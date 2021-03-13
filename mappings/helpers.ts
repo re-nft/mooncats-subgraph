@@ -2,8 +2,8 @@ import { Address, BigInt } from "@graphprotocol/graph-ts";
 import {
   Cat,
   MoonRescuer,
-  AdoptionRequest,
-  AdoptionOffer,
+  AdoptionRequested,
+  AdoptionOffered,
 } from "../generated/schema";
 
 export const fetchCat = (id: string): Cat => {
@@ -27,25 +27,36 @@ export const fetchMoonRescuer = (address: Address): MoonRescuer => {
   return <MoonRescuer>moonRescuer;
 };
 
-export const createAdoptionRequest = (
+export const createAdoptionRequested = (
   id: string,
-  from: Address,
-  price: BigInt
-): AdoptionRequest => {
-  let adoptionRequest = new AdoptionRequest(id);
-  adoptionRequest.from = from;
+  price: BigInt,
+  from: Address
+): AdoptionRequested => {
+  let adoptionRequest = AdoptionRequested.load(id);
+  if (adoptionRequest == null) {
+    adoptionRequest = new AdoptionRequested(id);
+    adoptionRequest.price = price;
+    adoptionRequest.from = from;
+  }
   adoptionRequest.price = price;
+  adoptionRequest.from = from;
   adoptionRequest.save();
-  return <AdoptionRequest>adoptionRequest;
+  return <AdoptionRequested>adoptionRequest;
 };
 
-export const createAdoptionOffer = (
+export const createAdoptionOffered = (
   id: string,
   price: BigInt,
   toAddress: Address
-): AdoptionOffer => {
-  let adoptionOffer = new AdoptionOffer(id);
+): AdoptionOffered => {
+  let adoptionOffer = AdoptionOffered.load(id);
+  if (adoptionOffer == null) {
+    adoptionOffer = new AdoptionOffered(id);
+    adoptionOffer.price = price;
+    adoptionOffer.toAddress = toAddress;
+  }
   adoptionOffer.price = price;
   adoptionOffer.toAddress = toAddress;
-  return <AdoptionOffer>adoptionOffer;
+  adoptionOffer.save();
+  return <AdoptionOffered>adoptionOffer;
 };

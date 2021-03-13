@@ -1,9 +1,9 @@
 type Cat @entity {
   id: ID!
   name: String
-  adoptionOffer: AdoptionOffer
-  adoptionRequest: AdoptionRequest
   inWallet: Boolean!
+  adoptionRequested: AdoptionRequested
+  adoptionOffered: AdoptionOffered
 }
 
 type MoonRescuer @entity {
@@ -11,14 +11,14 @@ type MoonRescuer @entity {
   cats: [Cat!]
 }
 
-type AdoptionOffer @entity {
+type AdoptionOffered @entity {
   id: ID!
   price: BigInt!
   toAddress: Bytes!
 }
 
-type AdoptionRequest @entity {
+type AdoptionRequested @entity {
   id: ID!
-  from: Bytes!
   price: BigInt!
+  from: Bytes!
 }
