@@ -5,6 +5,8 @@ type Cat @entity {
   inWallet: Boolean!
   activeAdoptionRequest: AdoptionRequested
   activeAdoptionOffer: AdoptionOffered
+  requestPrices: [RequestPrice!] @derivedFrom(field: "cat")
+  offerPrices: [OfferPrice!] @derivedFrom(field: "cat")
   wasWrapped: Boolean!
 }
 
@@ -27,4 +29,18 @@ type AdoptionOffered @entity {
   toAddress: Bytes!
   timestamp: BigInt!
   cat: Cat! @derivedFrom(field: "activeAdoptionOffer")
+}
+
+type RequestPrice @entity {
+  id: ID!
+  price: BigInt!
+  timestamp: BigInt!
+  cat: Cat!
+}
+
+type OfferPrice @entity {
+  id: ID!
+  price: BigInt!
+  timestamp: BigInt!
+  cat: Cat!
 }
