@@ -36,11 +36,13 @@ export const fetchMoonRescuer = (address: Bytes): MoonRescuer => {
 export const createAdoptionRequested = (
   id: string,
   price: BigInt,
-  from: Address
+  from: Address,
+  createdAt: BigInt
 ): AdoptionRequested => {
   let adoptionRequest = new AdoptionRequested(id);
   adoptionRequest.price = price;
   adoptionRequest.from = from;
+  adoptionRequest.timestamp = createdAt;
   return <AdoptionRequested>adoptionRequest;
 };
 
@@ -52,11 +54,13 @@ export const fetchAdoptionRequest = (id: string): AdoptionRequested => {
 export const createAdoptionOffered = (
   id: string,
   price: BigInt,
-  toAddress: Address
+  toAddress: Address,
+  createdAt: BigInt
 ): AdoptionOffered => {
   let adoptionOffer = new AdoptionOffered(id);
   adoptionOffer.price = price;
   adoptionOffer.toAddress = toAddress;
+  adoptionOffer.timestamp = createdAt;
   return <AdoptionOffered>adoptionOffer;
 };
 

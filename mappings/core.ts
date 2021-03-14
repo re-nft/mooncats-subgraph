@@ -1,5 +1,4 @@
-// import { log, BigInt } from "@graphprotocol/graph-ts";
-import { BigInt } from "@graphprotocol/graph-ts";
+import { store } from "@graphprotocol/graph-ts";
 
 import {
   CatAdopted,
@@ -64,7 +63,8 @@ export function handleAdoptionOffered(event: AdoptionOffered): void {
   let adoptionOffer = createAdoptionOffered(
     cat.id,
     params.price,
-    params.toAddress
+    params.toAddress,
+    event.block.timestamp
   );
   cat.adoptionOffered = adoptionOffer.id;
   if (params.toAddress.toHexString() == wrapperContract) {
@@ -80,8 +80,7 @@ export function handleAdoptionOfferCancelled(
   let params = event.params;
   let catId = params.catId;
   let cat = fetchCat(catId);
-  let adoptionOffer = fetchAdoptionOffer(cat.id);
-  adoptionOffer = null;
+  store.remove('AdoptionOffered', cat.id);
   cat.adoptionOffered = null;
   cat.save();
 }
@@ -94,7 +93,8 @@ export function handleAdoptionRequested(event: AdoptionRequested): void {
   let adoptionRequest = createAdoptionRequested(
     cat.id,
     params.price,
-    params.from
+    params.from,
+    event.block.timestamp
   );
   cat.adoptionRequested = adoptionRequest.id;
   adoptionRequest.save();
@@ -107,18 +107,7 @@ export function handleAdoptionRequestCancelled(
   let params = event.params;
   let catId = params.catId;
   let cat = fetchCat(catId);
-  let adoptionRequest = fetchAdoptionRequest(cat.id);
-  adoptionRequest = null;
+  store.remove('AdoptionRequested', cat.id)
   cat.adoptionRequested = null;
   cat.save();
-}
-
-export function handleGenesisCatsAdded(event: GenesisCatsAdded): void {
-  let params = event.params;
-  let catIds = params.catIds;
-  catIds.forEach((catId) => {
-    let cat = fetchCat(catId);
-    cat.isGenesis = true;
-    cat.save();
-  });
 }

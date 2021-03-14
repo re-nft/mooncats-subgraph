@@ -6,7 +6,6 @@ type Cat @entity {
   adoptionRequested: AdoptionRequested
   adoptionOffered: AdoptionOffered
   wasWrapped: Boolean!
-  isGenesis: Boolean!
 }
 
 type MoonRescuer @entity {
@@ -18,6 +17,7 @@ type AdoptionRequested @entity {
   id: ID!
   price: BigInt!
   from: Bytes!
+  timestamp: BigInt!
   cat: Cat! @derivedFrom(field: "adoptionRequested")
 }
 
@@ -25,5 +25,6 @@ type AdoptionOffered @entity {
   id: ID!
   price: BigInt!
   toAddress: Bytes!
+  timestamp: BigInt!
   cat: Cat! @derivedFrom(field: "adoptionOffered")
 }
