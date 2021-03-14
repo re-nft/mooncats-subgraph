@@ -8,6 +8,7 @@ type Cat @entity {
   requestPrices: [RequestPrice!] @derivedFrom(field: "cat")
   offerPrices: [OfferPrice!] @derivedFrom(field: "cat")
   wasWrapped: Boolean!
+  rescueTimestamp: BigInt!
 }
 
 type MoonRescuer @entity {

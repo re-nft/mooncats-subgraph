@@ -40,7 +40,7 @@ export function handleCatRescued(event: CatRescued): void {
   let cat = fetchCat(catId);
   let to = fetchMoonRescuer(params.to);
   cat.owner = params.to.toHexString();
-  cat.inWallet = false;
+  cat.rescueTimestamp = event.block.timestamp;
   to.save();
   cat.save();
 }
