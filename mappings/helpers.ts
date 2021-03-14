@@ -19,7 +19,6 @@ export const fetchCat = (id: Bytes): Cat => {
     cat.adoptionRequested = null;
     cat.adoptionOffered = null;
     cat.wasWrapped = false;
-    cat.isGenesis = false;
   }
   return <Cat>cat;
 };

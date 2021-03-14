@@ -8,16 +8,12 @@ import {
   AdoptionOfferCancelled,
   AdoptionRequested,
   AdoptionRequestCancelled,
-  GenesisCatsAdded,
 } from "../generated/MoonCatRescue/MoonCatRescue";
 import {
   fetchCat,
   fetchMoonRescuer,
   createAdoptionOffered,
   createAdoptionRequested,
-  fetchAdoptionOffer,
-  fetchAdoptionRequest,
-  // fetchGenesisCats
 } from "./helpers";
 
 let wrapperContract = "0x7c40c393dc0f283f318791d746d894ddd3693572";
