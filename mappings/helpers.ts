@@ -16,10 +16,9 @@ export const fetchCat = (id: Bytes): Cat => {
     cat.name = null;
     cat.owner = ZERO_ADDRESS;
     cat.inWallet = false;
-    cat.adoptionRequested = null;
-    cat.adoptionOffered = null;
+    cat.activeAdoptionRequest = null;
+    cat.activeAdoptionOffer = null;
     cat.wasWrapped = false;
-    cat.isGenesis = false;
   }
   return <Cat>cat;
 };
@@ -36,11 +35,13 @@ export const fetchMoonRescuer = (address: Bytes): MoonRescuer => {
 export const createAdoptionRequested = (
   id: string,
   price: BigInt,
-  from: Address
+  from: Address,
+  timestamp: BigInt
 ): AdoptionRequested => {
   let adoptionRequest = new AdoptionRequested(id);
   adoptionRequest.price = price;
   adoptionRequest.from = from;
+  adoptionRequest.timestamp = timestamp;
   return <AdoptionRequested>adoptionRequest;
 };
 
@@ -52,11 +53,13 @@ export const fetchAdoptionRequest = (id: string): AdoptionRequested => {
 export const createAdoptionOffered = (
   id: string,
   price: BigInt,
-  toAddress: Address
+  toAddress: Address,
+  timestamp: BigInt
 ): AdoptionOffered => {
   let adoptionOffer = new AdoptionOffered(id);
   adoptionOffer.price = price;
   adoptionOffer.toAddress = toAddress;
+  adoptionOffer.timestamp = timestamp;
   return <AdoptionOffered>adoptionOffer;
 };
 

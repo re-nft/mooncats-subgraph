@@ -1,5 +1,4 @@
-// import { log, BigInt } from "@graphprotocol/graph-ts";
-import { BigInt } from "@graphprotocol/graph-ts";
+import { store } from "@graphprotocol/graph-ts";
 
 import {
   CatAdopted,
@@ -16,9 +15,6 @@ import {
   fetchMoonRescuer,
   createAdoptionOffered,
   createAdoptionRequested,
-  fetchAdoptionOffer,
-  fetchAdoptionRequest,
-  // fetchGenesisCats
 } from "./helpers";
 
 let wrapperContract = "0x7c40c393dc0f283f318791d746d894ddd3693572";
@@ -61,16 +57,17 @@ export function handleAdoptionOffered(event: AdoptionOffered): void {
   let params = event.params;
   let catId = params.catId;
   let cat = fetchCat(catId);
-  let adoptionOffer = createAdoptionOffered(
+  let activeAdoptionOffer = createAdoptionOffered(
     cat.id,
     params.price,
-    params.toAddress
+    params.toAddress,
+    event.block.timestamp
   );
-  cat.adoptionOffered = adoptionOffer.id;
+  cat.activeAdoptionOffer = activeAdoptionOffer.id;
   if (params.toAddress.toHexString() == wrapperContract) {
     cat.wasWrapped = true;
   }
-  adoptionOffer.save();
+  activeAdoptionOffer.save();
   cat.save();
 }
 
@@ -80,9 +77,8 @@ export function handleAdoptionOfferCancelled(
   let params = event.params;
   let catId = params.catId;
   let cat = fetchCat(catId);
-  let adoptionOffer = fetchAdoptionOffer(cat.id);
-  adoptionOffer = null;
-  cat.adoptionOffered = null;
+  store.remove('AdoptionOffered', cat.id);
+  cat.activeAdoptionOffer = null;
   cat.save();
 }
 
@@ -91,13 +87,14 @@ export function handleAdoptionRequested(event: AdoptionRequested): void {
   let params = event.params;
   let catId = params.catId;
   let cat = fetchCat(catId);
-  let adoptionRequest = createAdoptionRequested(
+  let activeAdoptionRequest = createAdoptionRequested(
     cat.id,
     params.price,
-    params.from
+    params.from,
+    event.block.timestamp
   );
-  cat.adoptionRequested = adoptionRequest.id;
-  adoptionRequest.save();
+  cat.activeAdoptionRequest = activeAdoptionRequest.id;
+  activeAdoptionRequest.save();
   cat.save();
 }
 
@@ -107,9 +104,8 @@ export function handleAdoptionRequestCancelled(
   let params = event.params;
   let catId = params.catId;
   let cat = fetchCat(catId);
-  let adoptionRequest = fetchAdoptionRequest(cat.id);
-  adoptionRequest = null;
-  cat.adoptionRequested = null;
+  store.remove('AdoptionRequested', cat.id);
+  cat.activeAdoptionRequest = null;
   cat.save();
 }
 
@@ -118,7 +114,6 @@ export function handleGenesisCatsAdded(event: GenesisCatsAdded): void {
   let catIds = params.catIds;
   catIds.forEach((catId) => {
     let cat = fetchCat(catId);
-    cat.isGenesis = true;
     cat.save();
   });
 }
