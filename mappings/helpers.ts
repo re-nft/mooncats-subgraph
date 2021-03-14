@@ -4,7 +4,6 @@ import {
   MoonRescuer,
   AdoptionRequested,
   AdoptionOffered,
-  GenesisCats,
 } from "../generated/schema";
 
 let ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
@@ -19,6 +18,8 @@ export const fetchCat = (id: Bytes): Cat => {
     cat.inWallet = false;
     cat.adoptionRequested = null;
     cat.adoptionOffered = null;
+    cat.wasWrapped = false;
+    cat.isGenesis = false;
   }
   return <Cat>cat;
 };
@@ -37,16 +38,15 @@ export const createAdoptionRequested = (
   price: BigInt,
   from: Address
 ): AdoptionRequested => {
-  let adoptionRequest = AdoptionRequested.load(id);
-  if (adoptionRequest == null) {
-    adoptionRequest = new AdoptionRequested(id);
-    adoptionRequest.price = price;
-    adoptionRequest.from = from;
-  } else {
-    adoptionRequest.price = price;
-    adoptionRequest.from = from;
-  }
+  let adoptionRequest = new AdoptionRequested(id);
+  adoptionRequest.price = price;
+  adoptionRequest.from = from;
   return <AdoptionRequested>adoptionRequest;
+};
+
+export const fetchAdoptionRequest = (id: string): AdoptionRequested => {
+  let adoptionRequested = AdoptionRequested.load(id);
+  return <AdoptionRequested>adoptionRequested;
 };
 
 export const createAdoptionOffered = (
@@ -54,29 +54,13 @@ export const createAdoptionOffered = (
   price: BigInt,
   toAddress: Address
 ): AdoptionOffered => {
-  let adoptionOffer = AdoptionOffered.load(id);
-  if (adoptionOffer == null) {
-    adoptionOffer = new AdoptionOffered(id);
-    adoptionOffer.price = price;
-    adoptionOffer.toAddress = toAddress;
-  } else {
-    adoptionOffer.price = price;
-    adoptionOffer.toAddress = toAddress;
-  }
+  let adoptionOffer = new AdoptionOffered(id);
+  adoptionOffer.price = price;
+  adoptionOffer.toAddress = toAddress;
   return <AdoptionOffered>adoptionOffer;
 };
 
-export const fetchGenesisCats = (cats: Bytes[]): GenesisCats => {
-  let genesisCats = GenesisCats.load("0");
-
-  if (genesisCats == null) {
-    genesisCats = new GenesisCats("0");
-    // genesisCats.cats = cats;
-    genesisCats.save();
-  }
-
-  let allGenesisCats = genesisCats.cats.slice(0);
-  // allGenesisCats.push(cat.id);
-  genesisCats.cats = allGenesisCats;
-  return <GenesisCats>genesisCats;
+export const fetchAdoptionOffer = (id: string): AdoptionOffered => {
+  let adoptionOffered = AdoptionOffered.load(id);
+  return <AdoptionOffered>adoptionOffered;
 };
