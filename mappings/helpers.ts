@@ -4,6 +4,8 @@ import {
   MoonRescuer,
   AdoptionRequested,
   AdoptionOffered,
+  RequestPrice,
+  OfferPrice
 } from "../generated/schema";
 
 let ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
@@ -67,3 +69,19 @@ export const fetchAdoptionOffer = (id: string): AdoptionOffered => {
   let adoptionOffered = AdoptionOffered.load(id);
   return <AdoptionOffered>adoptionOffered;
 };
+
+export const createRequestPrice = (id: string, price: BigInt, timestamp: BigInt, cat: string): RequestPrice => {
+  let requestPrice = new RequestPrice(id);
+  requestPrice.price = price;
+  requestPrice.timestamp = timestamp;
+  requestPrice.cat = cat;
+  return <RequestPrice>requestPrice;
+}
+
+export const createOfferPrice = (id: string, price: BigInt, timestamp: BigInt, cat: string): RequestPrice => {
+  let offerPrice = new OfferPrice(id);
+  offerPrice.price = price;
+  offerPrice.timestamp = timestamp;
+  offerPrice.cat = cat;
+  return <RequestPrice>offerPrice;
+}

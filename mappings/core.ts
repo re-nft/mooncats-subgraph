@@ -15,6 +15,7 @@ import {
   fetchMoonRescuer,
   createAdoptionOffered,
   createAdoptionRequested,
+  createRequestPrice
 } from "./helpers";
 
 let wrapperContract = "0x7c40c393dc0f283f318791d746d894ddd3693572";
@@ -67,8 +68,16 @@ export function handleAdoptionOffered(event: AdoptionOffered): void {
   if (params.toAddress.toHexString() == wrapperContract) {
     cat.wasWrapped = true;
   }
-  activeAdoptionOffer.save();
+  let offerPriceId = cat.id + "::" + event.transaction.hash.toString() + "::" + event.transaction.index.toString();
+  let offerPrice = createRequestPrice(
+    offerPriceId,
+    params.price,
+    event.block.timestamp,
+    cat.id
+  )
+  offerPrice.save();
   cat.save();
+  activeAdoptionOffer.save();
 }
 
 export function handleAdoptionOfferCancelled(
@@ -94,8 +103,16 @@ export function handleAdoptionRequested(event: AdoptionRequested): void {
     event.block.timestamp
   );
   cat.activeAdoptionRequest = activeAdoptionRequest.id;
-  activeAdoptionRequest.save();
+  let requestPriceId = cat.id + "::" + event.transaction.hash.toString() + "::" + event.transaction.index.toString();
+  let requestPrice = createRequestPrice(
+    requestPriceId,
+    params.price,
+    event.block.timestamp,
+    cat.id
+  )
+  requestPrice.save();
   cat.save();
+  activeAdoptionRequest.save();
 }
 
 export function handleAdoptionRequestCancelled(
