@@ -7,12 +7,18 @@ import {
   GenesisCats,
 } from "../generated/schema";
 
+let ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
 export const fetchCat = (id: Bytes): Cat => {
   let _id = id.toHexString();
   let cat = Cat.load(_id);
   if (cat === null) {
     cat = new Cat(_id);
+    cat.name = null;
+    cat.owner = ZERO_ADDRESS;
     cat.inWallet = false;
+    cat.adoptionRequested = null;
+    cat.adoptionOffered = null;
   }
   return <Cat>cat;
 };
@@ -22,7 +28,6 @@ export const fetchMoonRescuer = (address: Bytes): MoonRescuer => {
   let moonRescuer = MoonRescuer.load(_address);
   if (moonRescuer === null) {
     moonRescuer = new MoonRescuer(_address);
-    moonRescuer.cats = new Array<string>();
   }
   return <MoonRescuer>moonRescuer;
 };

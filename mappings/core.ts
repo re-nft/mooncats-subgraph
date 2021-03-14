@@ -20,51 +20,27 @@ import {
 } from "./helpers";
 
 export function handleCatAdopted(event: CatAdopted): void {
-  let catAdoptedParams = event.params;
-  let catId = catAdoptedParams.catId;
-
+  let params = event.params;
+  let catId = params.catId;
   let cat = fetchCat(catId);
-  let from = fetchMoonRescuer(catAdoptedParams.from);
-  let to = fetchMoonRescuer(catAdoptedParams.to);
-
-  let toCatsCopy = to.cats;
-  let fromCatsCopy = from.cats;
-
-  if (from.id !== to.id) {
-    let fromCatsIx = fromCatsCopy.indexOf(cat.id);
-    fromCatsCopy.splice(fromCatsIx, 1);
-    from.cats = fromCatsCopy;
-    from.save();
-    toCatsCopy.push(cat.id);
-    to.cats = toCatsCopy;
-    to.save();
-  } else {
-    let ix = toCatsCopy.indexOf(cat.id);
-    if (ix === -1) {
-      toCatsCopy.push(cat.id);
-      to.cats = toCatsCopy;
-      to.save();
-    }
-  }
+  let from = fetchMoonRescuer(params.from);
+  from.save();
+  let to = fetchMoonRescuer(params.to);
+  to.save();
+  cat.owner = params.to.toHexString();
   cat.inWallet = true;
   cat.save();
 }
 
 export function handleCatRescued(event: CatRescued): void {
-  let catRescuedParams = event.params;
-  let catId = catRescuedParams.catId;
-
+  let params = event.params;
+  let catId = params.catId;
   let cat = fetchCat(catId);
-  let to = fetchMoonRescuer(catRescuedParams.to);
-
-  let toCatsCopy = to.cats;
-  toCatsCopy.push(cat.id);
-  to.cats = toCatsCopy;
-
-  cat.inWallet = false;
-
-  cat.save();
+  let to = fetchMoonRescuer(params.to);
   to.save();
+  cat.owner = params.to.toHexString();
+  cat.inWallet = false;
+  cat.save();
 }
 
 export function handleCatNamed(event: CatNamed): void {

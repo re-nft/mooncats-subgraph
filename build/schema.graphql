@@ -1,5 +1,6 @@
 type Cat @entity {
   id: ID!
+  owner: MoonRescuer!
   name: String
   inWallet: Boolean!
   adoptionRequested: AdoptionRequested
@@ -8,19 +9,21 @@ type Cat @entity {
 
 type MoonRescuer @entity {
   id: ID!
-  cats: [Cat!]
-}
-
-type AdoptionOffered @entity {
-  id: ID!
-  price: BigInt!
-  toAddress: Bytes!
+  cats: [Cat!]! @derivedFrom(field: "owner")
 }
 
 type AdoptionRequested @entity {
   id: ID!
   price: BigInt!
   from: Bytes!
+  cat: Cat! @derivedFrom(field: "adoptionRequested")
+}
+
+type AdoptionOffered @entity {
+  id: ID!
+  price: BigInt!
+  toAddress: Bytes!
+  cat: Cat! @derivedFrom(field: "adoptionOffered")
 }
 
 type GenesisCats @entity {
