@@ -7,6 +7,7 @@ type Cat @entity {
   activeAdoptionOffer: AdoptionOffered
   requestPrices: [RequestPrice!] @derivedFrom(field: "cat")
   offerPrices: [OfferPrice!] @derivedFrom(field: "cat")
+  rescueTimestamp: BigInt!
   wasWrapped: Boolean!
 }
 

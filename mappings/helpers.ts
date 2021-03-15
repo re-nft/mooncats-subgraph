@@ -21,6 +21,7 @@ export const fetchCat = (id: Bytes): Cat => {
     cat.activeAdoptionRequest = null;
     cat.activeAdoptionOffer = null;
     cat.wasWrapped = false;
+    cat.rescueTimestamp = BigInt.fromI32(1);
   }
   return <Cat>cat;
 };
