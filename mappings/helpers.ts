@@ -1,3 +1,5 @@
+import { Bytes, BigInt, Address, store } from "@graphprotocol/graph-ts";
+
 import {
   CatRescued,
   AdoptionOffered,
@@ -11,21 +13,6 @@ import {
   OfferPrice,
   Provenance,
 } from "../generated/schema";
-
-export const createCat = (catId: string, ownerId: string, event: CatRescued): Cat => {
-  let cat = new Cat(catId);
-  let owner = fetchOwner(ownerId);
-  owner.save();
-  cat.owner = owner.id;
-  cat.rescueTimestamp = event.block.timestamp;
-  cat.isWrapped = false;
-  return <Cat>cat;
-}
-
-export const getCat = (catId: string): Cat => {
-  let cat = Cat.load(catId);
-  return <Cat>cat;
-};
 
 export const createOwner = (ownerId: string): Owner => {
   let owner = new Owner(ownerId);
@@ -43,6 +30,39 @@ export const fetchOwner = (ownerId: string): Owner => {
     owner = createOwner(ownerId);
   }
   return <Owner>owner;
+}
+
+export const createCat = (catId: string, ownerId: string, event: CatRescued): Cat => {
+  let cat = new Cat(catId);
+  let owner = fetchOwner(ownerId);
+  owner.save();
+  cat.owner = owner.id;
+  cat.rescueTimestamp = event.block.timestamp;
+  cat.isWrapped = false;
+  return <Cat>cat;
+}
+
+export const getCat = (catId: string): Cat => {
+  let cat = Cat.load(catId);
+  return <Cat>cat;
+};
+
+export const createProvenance = (provenanceId: string): Provenance => {
+  let provenance = new Provenance(provenanceId);
+  return <Provenance>provenance;
+}
+
+export const getProvenance = (provenanceId: string): Provenance => {
+  let provenance = Provenance.load(provenanceId);
+  return <Provenance>provenance;
+}
+
+export const fetchProvenance = (provenanceId: string): Provenance => {
+  let provenance = getProvenance(provenanceId);
+  if (provenance == null) {
+    provenance = createProvenance(provenanceId);
+  }
+  return <Provenance>provenance;
 }
 
 export const createRequestPrice = (requestId: string, provenanceId: string, event: AdoptionRequested): RequestPrice => {
@@ -76,25 +96,7 @@ export const createOfferPrice = (offerId: string, provenanceId: string, event: A
   return <OfferPrice>offerPrice;
 }
 
-export const getOfferPrice = (requestId: string): OfferPrice => {
-  let offerPrice = OfferPrice.load(requestId);
+export const getOfferPrice = (offerId: string): OfferPrice => {
+  let offerPrice = OfferPrice.load(offerId);
   return <OfferPrice>offerPrice;
-}
-
-export const createProvenance = (provenanceId: string): Provenance => {
-  let provenance = new Provenance(provenanceId);
-  return <Provenance>provenance;
-}
-
-export const getProvenance = (provenanceId: string): Provenance => {
-  let provenance = Provenance.load(provenanceId);
-  return <Provenance>provenance;
-}
-
-export const fetchProvenance = (provenanceId: string): Provenance => {
-  let provenance = getProvenance(provenanceId);
-  if (provenance == null) {
-    provenance = createProvenance(provenanceId);
-  }
-  return <Provenance>provenance;
 }

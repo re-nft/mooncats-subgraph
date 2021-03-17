@@ -25,10 +25,8 @@ let WRAPPER_CONTRACT = "0x7c40c393dc0f283f318791d746d894ddd3693572";
 
 // catNamed only once
 // catRescued once - creation time
-
 // adoptionRequests and adoptionOffers are created and cancelled
 // catAdopted with a matching request/offer means filled request/order
-
 // catAdopted - every time that transferCat is called. owner changes here to to
 
 // this is the only place where the cat is created
@@ -62,11 +60,8 @@ export function handleCatAdopted(event: CatAdopted): void {
     return;
   }
 
-  // todo: this may not work as expected
-  let lastOfferId = provenance.offerPrices[provenance.offerPrices.length - 1];
-  let lastRequestId = provenance.requestPrices[provenance.requestPrices.length - 1];
-  let lastOffer = getOfferPrice(lastOfferId);
-  let lastRequest = getRequestPrice(lastRequestId);
+  let lastOffer = getOfferPrice(cat.activeOffer);
+  let lastRequest = getRequestPrice(cat.activeRequest);
 
   // offer was accepted if:
   // offer's to is 0x0, offer's from is CatAdopted's from, to is anything, price is offer's price
@@ -82,6 +77,7 @@ export function handleCatAdopted(event: CatAdopted): void {
     // for that reason, we do not change the owner here
     lastOffer.active = false;
     lastOffer.save();
+    cat.unset('activeOffer');
     provenance.save();
     cat.save();
     return;
@@ -95,6 +91,7 @@ export function handleCatAdopted(event: CatAdopted): void {
     let newOwner = fetchOwner(getOwnerId(to));
     cat.owner = newOwner.id;
     lastOffer.save();
+    cat.unset('activeOffer');
     provenance.save();
     newOwner.save();
     cat.save();
@@ -136,19 +133,22 @@ export function handleCatAdopted(event: CatAdopted): void {
 // * I have a cat, you [0x123..333] (or any1 [0x0]) can buy it from me for X wei
 // * push to the list of offer prices, set active = true
 export function handleAdoptionOffered(event: AdoptionOffered): void {
+  let cat = getCat(getCatId(event.params.catId));
+  if (cat.activeOffer) {
+    let activeOffer = getOfferPrice(cat.activeOffer);
+    activeOffer.active = false;
+    activeOffer.save();
+  }
+
   let offerPriceId = getOfferPriceId(event.params.catId, event.transactionLogIndex);
   let provenanceId = getProvenanceId(event.params.catId);
   let offerPrice = createOfferPrice(offerPriceId, provenanceId, event);
   let provenance = getProvenance(provenanceId);
 
-  // todo: this may not work as expected
-  let lastOfferId = provenance.offerPrices[provenance.offerPrices.length - 1];
-  let lastOffer = getOfferPrice(lastOfferId);
-  lastOffer.active = false;
-  lastOffer.save();
+  cat.activeOffer = offerPrice.id;
+  offerPrice.save();
+  cat.save();
   provenance.save();
-
-  // if an offer exists on the cat already, need to make it inactive first
   offerPrice.save();
 }
 
@@ -156,36 +156,50 @@ export function handleAdoptionOffered(event: AdoptionOffered): void {
 export function handleAdoptionOfferCancelled(
   event: AdoptionOfferCancelled
 ): void {
+  let cat = getCat(getCatId(event.params.catId));
+  cat.unset('activeOffer');
+
   let offerPriceId = getOfferPriceId(event.params.catId, event.transactionLogIndex);
   let offerPrice = getOfferPrice(offerPriceId);
+
   offerPrice.active = false;
   offerPrice.save();
+  cat.save();
 }
 
 // * I like a cat, and I am offering a cat owner, to buy it from (me) for price
 export function handleAdoptionRequested(event: AdoptionRequested): void {
+  let cat = getCat(getCatId(event.params.catId));
+  if (cat.activeRequest) {
+    let activeRequest = getRequestPrice(cat.activeRequest);
+    activeRequest.active = false;
+    activeRequest.save();
+  }
+
   let requestPriceId = getRequestPriceId(event.params.catId, event.transactionLogIndex);
   let provenanceId = getProvenanceId(event.params.catId);
   let requestPrice = createRequestPrice(requestPriceId, provenanceId, event);
   let provenance = getProvenance(provenanceId);
 
-  // todo: this may not work as expected
-  let lastRequestId = provenance.requestPrices[provenance.requestPrices.length - 1];
-  let lastRequest = getRequestPrice(lastRequestId);
-  lastRequest.active = false;
-  lastRequest.save();
+  cat.activeRequest = requestPrice.id;
+  requestPrice.save();
+  cat.save();
   provenance.save();
-
   requestPrice.save();
 }
 
 export function handleAdoptionRequestCancelled(
   event: AdoptionRequestCancelled
 ): void {
+  let cat = getCat(getCatId(event.params.catId));
+  cat.unset('activeRequest');
+
   let requestPriceId = getRequestPriceId(event.params.catId, event.transactionLogIndex);
   let requestPrice = getRequestPrice(requestPriceId);
+
   requestPrice.active = false;
   requestPrice.save();
+  cat.save();
 }
 
 export function handleCatNamed(event: CatNamed): void {

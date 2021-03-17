@@ -5,7 +5,8 @@ type Cat @entity {
   isWrapped: Boolean!
   name: String
   provenance: Provenance
-
+  activeRequest: RequestPrice
+  activeOffer: OfferPrice
 }
 
 "many side is derived, one side in Cat is stored"

@@ -35,6 +35,4 @@ dataSources:
           handler: handleAdoptionRequested
         - event: AdoptionRequestCancelled(indexed bytes5)
           handler: handleAdoptionRequestCancelled
-        - event: GenesisCatsAdded(bytes5[16])
-          handler: handleGenesisCatsAdded
       file: MoonCatRescue/MoonCatRescue.wasm

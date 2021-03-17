@@ -2,11 +2,6 @@
 # yarn lockfile v1
 
 
-"@assemblyscript/loader@^0.18.15":
-  version "0.18.15"
-  resolved "https://registry.yarnpkg.com/@assemblyscript/loader/-/loader-0.18.15.tgz#9c3c6c15ad51a522b619b6faf34e3d0c7ba894ed"
-  integrity sha512-kUWC6tBJQiI38vFT6L9M2zlzJ3/Wgh8JZEIMekgkhXjLkDTMWcmOZX085RsOx5c9BdwrqMwaj/iMIpCbid214g==
-
 "@babel/code-frame@^7.0.0":
   version "7.12.13"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.12.13.tgz#dcfc826beef65e75c50e21d3837d7d95798dd658"
@@ -244,14 +239,6 @@ asn1@~0.2.3:
   dependencies:
     safer-buffer "~2.1.0"
 
-assemblyscript@^0.18.15:
-  version "0.18.15"
-  resolved "https://registry.yarnpkg.com/assemblyscript/-/assemblyscript-0.18.15.tgz#b66a4d96c7de14e311303fb7c8ccf14b9d689e8f"
-  integrity sha512-s1N1qwdBhen2SLQApYCtRIPWm1Am3oAbW58GCEKbeN6ZbQRh7nq0pv4RDqKw6CgK7dySn/F2S1D6p0scyRbQRw==
-  dependencies:
-    binaryen "100.0.0"
-    long "^4.0.0"
-
 "assemblyscript@https://github.com/AssemblyScript/assemblyscript#36040d5b5312f19a025782b5e36663823494c2f3":
   version "0.6.0"
   resolved "https://github.com/AssemblyScript/assemblyscript#36040d5b5312f19a025782b5e36663823494c2f3"
@@ -335,11 +322,6 @@ binary-extensions@^2.0.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-2.2.0.tgz#75f502eeaf9ffde42fc98829645be4ea76bd9e2d"
   integrity sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==
-
-binaryen@100.0.0:
-  version "100.0.0"
-  resolved "https://registry.yarnpkg.com/binaryen/-/binaryen-100.0.0.tgz#8ed91955eff14eb4758d68d593869cbc1a9a0dff"
-  integrity sha512-nxOt8d8/VXAuSVEtAWUdKrqpqCy365QqD223EzzB1GzS5himiZAfM/R5lXx+M/5q8TB8cYp3tYxv5rTjNTJveQ==
 
 binaryen@77.0.0-nightly.20190407:
   version "77.0.0-nightly.20190407"
