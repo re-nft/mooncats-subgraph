@@ -76,9 +76,9 @@ export const createOfferPrice = (offerId: string, provenanceId: string, event: A
   return <OfferPrice>offerPrice;
 }
 
-export const getOfferPrice = (requestId: string): RequestPrice => {
-  let requestPrice = RequestPrice.load(requestId);
-  return <RequestPrice>requestPrice;
+export const getOfferPrice = (requestId: string): OfferPrice => {
+  let offerPrice = OfferPrice.load(requestId);
+  return <OfferPrice>offerPrice;
 }
 
 export const createProvenance = (provenanceId: string): Provenance => {
