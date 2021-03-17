@@ -76,59 +76,73 @@ export function handleCatAdopted(event: CatAdopted): void {
     // owner effectively changes to the wrapper contract
     // but only the original user can perform actions with the wrapped cat
     // for that reason, we do not change the owner here
-    lastOffer.active = false;
-    lastOffer.save();
+    if (lastOffer != null) {
+      lastOffer.active = false;
+      lastOffer.save();
+    }
     cat.unset('activeOffer');
     cat.activeOffer = null;
-    provenance.save();
+    if (provenance != null) {
+      provenance.save();
+    }
     cat.save();
     return;
   }
 
-  // unwrapped
+  // // unwrapped
   if (getAddress(from) == WRAPPER_CONTRACT) {
     // accepting offer does not cancel an active request
     cat.isWrapped = false;
-    lastOffer.active = false;
+    if (lastOffer != null) {
+      lastOffer.active = false;
+      lastOffer.save();
+    }
     let newOwner = fetchOwner(getOwnerId(to));
     cat.owner = newOwner.id;
-    lastOffer.save();
     cat.unset('activeOffer');
     cat.activeOffer = null;
-    provenance.save();
+    if (provenance != null) {
+      provenance.save();
+    }
     newOwner.save();
     cat.save();
     return;
   }
 
-  if (lastOffer.active) {
-    if (getAddress(lastOffer.to) == getAddress(to) || getAddress(lastOffer.to) == ZERO_ADDRESS) {
-      // successful offer accepted
-      // cat changes hands
-      // last offer becomes inactive, but filles becomes true
-      let newOwner = fetchOwner(getOwnerId(to));
-      cat.owner = newOwner.id;
-      lastOffer.filled = true;
-      lastOffer.active = false;
-      lastOffer.save();
-      provenance.save();
-      newOwner.save();
-      cat.save();
-      return;
+  if (lastOffer != null) {
+    if (lastOffer.active) {
+      if (getAddress(lastOffer.to) == getAddress(to) || getAddress(lastOffer.to) == ZERO_ADDRESS) {
+        // successful offer accepted
+        // cat changes hands
+        // last offer becomes inactive, but filles becomes true
+        let newOwner = fetchOwner(getOwnerId(to));
+        cat.owner = newOwner.id;
+        lastOffer.filled = true;
+        lastOffer.active = false;
+        lastOffer.save();
+        if (provenance != null) {
+          provenance.save();
+        }
+        newOwner.save();
+        cat.save();
+        return;
+      }
     }
   }
 
-  if (lastRequest.active) {
-    if (getAddress(lastRequest.from) == getAddress(to)) {
-      let newOwner = fetchOwner(getOwnerId(to));
-      cat.owner = newOwner.id;
-      lastRequest.filled = true;
-      lastRequest.active = false;
-      lastRequest.save();
-      provenance.save();
-      newOwner.save();
-      cat.save();
-      return;
+  if (lastRequest != null) {
+    if (lastRequest.active) {
+      if (getAddress(lastRequest.from) == getAddress(to)) {
+        let newOwner = fetchOwner(getOwnerId(to));
+        cat.owner = newOwner.id;
+        lastRequest.filled = true;
+        lastRequest.active = false;
+        lastRequest.save();
+        provenance.save();
+        newOwner.save();
+        cat.save();
+        return;
+      }
     }
   }
 }
