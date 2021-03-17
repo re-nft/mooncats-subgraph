@@ -13,6 +13,7 @@ import {
   createCat,
   getCat,
   fetchOwner,
+  fetchProvenance,
   createRequestPrice,
   getRequestPrice,
   createOfferPrice,
@@ -31,7 +32,7 @@ let WRAPPER_CONTRACT = "0x7c40c393dc0f283f318791d746d894ddd3693572";
 
 // this is the only place where the cat is created
 export function handleCatRescued(event: CatRescued): void {
-  let cat = createCat(getCatId(event.params.catId), getOwnerId(event.params.to), event);
+  let cat = createCat(getCatId(event.params.catId), getOwnerId(event.params.to), event.block.timestamp);
   cat.save();
 }
 
@@ -78,6 +79,7 @@ export function handleCatAdopted(event: CatAdopted): void {
     lastOffer.active = false;
     lastOffer.save();
     cat.unset('activeOffer');
+    cat.activeOffer = null;
     provenance.save();
     cat.save();
     return;
@@ -92,6 +94,7 @@ export function handleCatAdopted(event: CatAdopted): void {
     cat.owner = newOwner.id;
     lastOffer.save();
     cat.unset('activeOffer');
+    cat.activeOffer = null;
     provenance.save();
     newOwner.save();
     cat.save();
@@ -134,6 +137,11 @@ export function handleCatAdopted(event: CatAdopted): void {
 // * push to the list of offer prices, set active = true
 export function handleAdoptionOffered(event: AdoptionOffered): void {
   let cat = getCat(getCatId(event.params.catId));
+  if (cat == null) {
+    // ! is owner correct here?
+    cat = createCat(getCatId(event.params.catId),  getOwnerId(event.transaction.from), event.block.timestamp);
+  }
+
   if (cat.activeOffer) {
     let activeOffer = getOfferPrice(cat.activeOffer);
     activeOffer.active = false;
@@ -142,7 +150,7 @@ export function handleAdoptionOffered(event: AdoptionOffered): void {
 
   let offerPriceId = getOfferPriceId(event.params.catId, event.transactionLogIndex);
   let provenanceId = getProvenanceId(event.params.catId);
-  let offerPrice = createOfferPrice(offerPriceId, provenanceId, event);
+  let offerPrice = createOfferPrice(offerPriceId, provenanceId, event.params.price, event.params.toAddress, event.block.timestamp);
   let provenance = getProvenance(provenanceId);
 
   cat.activeOffer = offerPrice.id;
@@ -157,19 +165,35 @@ export function handleAdoptionOfferCancelled(
   event: AdoptionOfferCancelled
 ): void {
   let cat = getCat(getCatId(event.params.catId));
+  if (cat == null) {
+    // ! is owner correct here?
+    cat = createCat(getCatId(event.params.catId),  getOwnerId(event.transaction.from), event.block.timestamp);
+  }
+
   cat.unset('activeOffer');
+  cat.activeOffer = null;
 
   let offerPriceId = getOfferPriceId(event.params.catId, event.transactionLogIndex);
   let offerPrice = getOfferPrice(offerPriceId);
+  let provenance = fetchProvenance(cat.id);
+  if (offerPrice == null) {
+    offerPrice = createOfferPrice(offerPriceId, provenance.id, BigInt.fromI32(0), Address.fromString(ZERO_ADDRESS), event.block.timestamp);
+  }
 
   offerPrice.active = false;
   offerPrice.save();
+  provenance.save();
   cat.save();
 }
 
 // * I like a cat, and I am offering a cat owner, to buy it from (me) for price
 export function handleAdoptionRequested(event: AdoptionRequested): void {
   let cat = getCat(getCatId(event.params.catId));
+  if (cat == null) {
+    // ! is owner correct here?
+    cat = createCat(getCatId(event.params.catId),  getOwnerId(event.transaction.from), event.block.timestamp);
+  }
+
   if (cat.activeRequest) {
     let activeRequest = getRequestPrice(cat.activeRequest);
     activeRequest.active = false;
@@ -178,7 +202,7 @@ export function handleAdoptionRequested(event: AdoptionRequested): void {
 
   let requestPriceId = getRequestPriceId(event.params.catId, event.transactionLogIndex);
   let provenanceId = getProvenanceId(event.params.catId);
-  let requestPrice = createRequestPrice(requestPriceId, provenanceId, event);
+  let requestPrice = createRequestPrice(requestPriceId, provenanceId, event.params.price, event.params.from, event.block.timestamp);
   let provenance = getProvenance(provenanceId);
 
   cat.activeRequest = requestPrice.id;
@@ -192,19 +216,34 @@ export function handleAdoptionRequestCancelled(
   event: AdoptionRequestCancelled
 ): void {
   let cat = getCat(getCatId(event.params.catId));
-  cat.unset('activeRequest');
+  if (cat == null) {
+    // ! is owner correct here?
+    cat = createCat(getCatId(event.params.catId), getOwnerId(event.transaction.from), event.block.timestamp);
+  }
 
+  cat.unset('activeRequest');
+  cat.activeRequest = null;
+
+  let provenance = fetchProvenance(cat.id);
   let requestPriceId = getRequestPriceId(event.params.catId, event.transactionLogIndex);
   let requestPrice = getRequestPrice(requestPriceId);
+  if (requestPrice == null) {
+    requestPrice = createRequestPrice(requestPriceId, provenance.id, BigInt.fromI32(0), Address.fromString(ZERO_ADDRESS), event.block.timestamp);
+  }
 
   requestPrice.active = false;
   requestPrice.save();
+  provenance.save();
   cat.save();
 }
 
 export function handleCatNamed(event: CatNamed): void {
   let cat = getCat(getCatId(event.params.catId));
-  cat.name = event.params.catName.toString();
+  if (cat == null) {
+    // ! is owner correct here?
+    cat = createCat(getCatId(event.params.catId),  getOwnerId(event.transaction.from), event.block.timestamp);
+  }
+  cat.name = event.params.catName.toHex();
   cat.save();
 }
 

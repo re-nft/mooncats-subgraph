@@ -32,12 +32,12 @@ export const fetchOwner = (ownerId: string): Owner => {
   return <Owner>owner;
 }
 
-export const createCat = (catId: string, ownerId: string, event: CatRescued): Cat => {
+export const createCat = (catId: string, ownerId: string, rescueTimestamp: BigInt): Cat => {
   let cat = new Cat(catId);
   let owner = fetchOwner(ownerId);
   owner.save();
   cat.owner = owner.id;
-  cat.rescueTimestamp = event.block.timestamp;
+  cat.rescueTimestamp = rescueTimestamp;
   cat.isWrapped = false;
   return <Cat>cat;
 }
@@ -65,14 +65,14 @@ export const fetchProvenance = (provenanceId: string): Provenance => {
   return <Provenance>provenance;
 }
 
-export const createRequestPrice = (requestId: string, provenanceId: string, event: AdoptionRequested): RequestPrice => {
+export const createRequestPrice = (requestId: string, provenanceId: string, price: BigInt, from: Address, timestamp: BigInt): RequestPrice => {
   let requestPrice = new RequestPrice(requestId);
   let provenance = fetchProvenance(provenanceId);
   provenance.save();
   requestPrice.provenance = provenance.id;
-  requestPrice.price = event.params.price;
-  requestPrice.from = event.params.from;
-  requestPrice.timestamp = event.block.timestamp;
+  requestPrice.price = price;
+  requestPrice.from = from;
+  requestPrice.timestamp = timestamp;
   requestPrice.filled = false;
   requestPrice.active = true;
   return <RequestPrice>requestPrice;
@@ -83,14 +83,14 @@ export const getRequestPrice = (requestId: string): RequestPrice => {
   return <RequestPrice>requestPrice;
 }
 
-export const createOfferPrice = (offerId: string, provenanceId: string, event: AdoptionOffered): OfferPrice => {
+export const createOfferPrice = (offerId: string, provenanceId: string, price: BigInt, to: Address, timestamp: BigInt): OfferPrice => {
   let offerPrice = new OfferPrice(offerId);
   let provenance = fetchProvenance(provenanceId);
   provenance.save();
   offerPrice.provenance = provenance.id;
-  offerPrice.price = event.params.price;
-  offerPrice.to = event.params.toAddress;
-  offerPrice.timestamp = event.block.timestamp;
+  offerPrice.price = price;
+  offerPrice.to = to;
+  offerPrice.timestamp = timestamp;
   offerPrice.filled = false;
   offerPrice.active = true;
   return <OfferPrice>offerPrice;
