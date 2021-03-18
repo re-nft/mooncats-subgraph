@@ -50,122 +50,56 @@ export function handleCatAdopted(event: CatAdopted): void {
   // if to   is 0x7c40c393dc0f283f318791d746d894ddd3693572 - wrapped
   // if from is 0x7c40c393dc0f283f318791d746d894ddd3693572 - unwrapped
   // owner of cat changes
+
   let catId = getCatId(event.params.catId);
   let cat = getCat(catId);
   if (cat == null) {
-    // todo: clearly this rescue timestamp is invalid
-    cat = createCat(catId, getOwnerId(event.params.to), event.block.timestamp);
+    // ! clearly this rescue timestamp is invalid
+    cat = createCat(catId, getOwnerId(event.params.to), BigInt.fromI32(3383587281));
   }
   let activeOffer = OfferPrice.load(cat.activeOffer);
   if (activeOffer) {
     activeOffer.active = false;
-    activeOffer.save();
   }
-  cat.unset('activeOffer');
-  cat.activeOffer = null;
+
   let provenanceId = getProvenanceId(event.params.catId);
   let provenance = getProvenance(provenanceId);
 
   let from = event.params.from;
   let to = event.params.to;
 
-  if (getAddress(to) == ZERO_ADDRESS) {
-    // bye bye kitty
-    store.remove('Cat', catId);
-    return;
-  }
-
-  let lastOffer = getOfferPrice(cat.activeOffer);
   let lastRequest = getRequestPrice(cat.activeRequest);
 
-  // offer was accepted if:
-  // offer's to is 0x0, offer's from is CatAdopted's from, to is anything, price is offer's price
-  // offer's to is not 0x0, offer's from is CatAdopted's from, to is offer's to, price is offer's price
-  // cat was wrapped if:
-  // offer's to is wrapper, offer's from is CatAdopted's from, 
-
-  // wrapped
   if (getAddress(to) == WRAPPER_CONTRACT) {
     cat.isWrapped = true;
-    // owner effectively changes to the wrapper contract
-    // but only the original user can perform actions with the wrapped cat
-    // for that reason, we do not change the owner here
-    if (lastOffer != null) {
-      lastOffer.active = false;
-      lastOffer.save();
-    }
-    cat.unset('activeOffer');
-    cat.activeOffer = null;
-    if (provenance != null) {
-      provenance.save();
-    }
-    cat.save();
-    return;
   }
 
-  // // unwrapped
   if (getAddress(from) == WRAPPER_CONTRACT) {
-    // accepting offer does not cancel an active request
     cat.isWrapped = false;
-    if (lastOffer != null) {
-      lastOffer.active = false;
-      lastOffer.save();
-    }
-    let newOwner = fetchOwner(getOwnerId(to));
-    cat.owner = newOwner.id;
-    cat.unset('activeOffer');
-    cat.activeOffer = null;
-    if (provenance != null) {
-      provenance.save();
-    }
-    newOwner.save();
-    cat.save();
-    return;
-  }
-
-  if (lastOffer != null) {
-    if (lastOffer.active) {
-      if (getAddress(lastOffer.to) == getAddress(to) || getAddress(lastOffer.to) == ZERO_ADDRESS) {
-        // successful offer accepted
-        // cat changes hands
-        // last offer becomes inactive, but filles becomes true
-        let newOwner = fetchOwner(getOwnerId(to));
-        cat.owner = newOwner.id;
-        cat.unset('activeOffer');
-        cat.activeOffer = null;
-        lastOffer.filled = true;
-        lastOffer.active = false;
-        lastOffer.save();
-        if (provenance != null) {
-          provenance.save();
-        }
-        newOwner.save();
-        cat.save();
-        return;
-      }
-    }
   }
 
   if (lastRequest != null) {
     if (lastRequest.active) {
       if (getAddress(lastRequest.from) == getAddress(to)) {
-        let newOwner = fetchOwner(getOwnerId(to));
-        cat.owner = newOwner.id;
-        cat.unset('activeRequest');
-        cat.activeRequest = null;
         lastRequest.filled = true;
         lastRequest.active = false;
         lastRequest.save();
-        if (provenance != null) {
-          provenance.save();
-        }
-        newOwner.save();
-        cat.save();
-        return;
+        cat.unset('activeRequest');
+        cat.activeRequest = null;
       }
     }
   }
 
+  if (activeOffer) {
+    activeOffer.save();
+  }
+  cat.unset('activeOffer');
+  cat.activeOffer = null;
+  let newOwner = fetchOwner(getOwnerId(to));
+  cat.owner = newOwner.id;
+  if (provenance != null) {
+    provenance.save();
+  }
   cat.save();
 }
 
