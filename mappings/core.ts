@@ -49,6 +49,10 @@ export function handleCatAdopted(event: CatAdopted): void {
   // owner of cat changes
   let catId = getCatId(event.params.catId);
   let cat = getCat(catId);
+  if (cat == null) {
+    // todo: clearly this rescue timestamp is invalid
+    cat = createCat(catId, getOwnerId(event.params.to), event.block.timestamp);
+  }
   let provenanceId = getProvenanceId(event.params.catId);
   let provenance = getProvenance(provenanceId);
 
@@ -117,6 +121,8 @@ export function handleCatAdopted(event: CatAdopted): void {
         // last offer becomes inactive, but filles becomes true
         let newOwner = fetchOwner(getOwnerId(to));
         cat.owner = newOwner.id;
+        cat.unset('activeOffer');
+        cat.activeOffer = null;
         lastOffer.filled = true;
         lastOffer.active = false;
         lastOffer.save();
@@ -135,16 +141,22 @@ export function handleCatAdopted(event: CatAdopted): void {
       if (getAddress(lastRequest.from) == getAddress(to)) {
         let newOwner = fetchOwner(getOwnerId(to));
         cat.owner = newOwner.id;
+        cat.unset('activeRequest');
+        cat.activeRequest = null;
         lastRequest.filled = true;
         lastRequest.active = false;
         lastRequest.save();
-        provenance.save();
+        if (provenance != null) {
+          provenance.save();
+        }
         newOwner.save();
         cat.save();
         return;
       }
     }
   }
+
+  cat.save();
 }
 
 // * I have a cat, you [0x123..333] (or any1 [0x0]) can buy it from me for X wei
