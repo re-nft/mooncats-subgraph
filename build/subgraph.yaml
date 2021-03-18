@@ -10,7 +10,7 @@ dataSources:
     source:
       address: "0x60cd862c9c687a9de49aecdc3a99b74a4fc54ab6"
       abi: MoonCatRescue
-      startBlock: 4130000
+      startBlock: 12025073
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
