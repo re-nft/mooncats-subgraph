@@ -35,6 +35,7 @@ type OfferPrice @entity {
   timestamp: BigInt!
   filled: Boolean!
   active: Boolean!
+  catRescueTimestamp: BigInt!
 }
 
 type Provenance @entity {
