@@ -116,6 +116,8 @@ export function handleAdoptionOffered(event: AdoptionOffered): void {
     let activeOffer = getOfferPrice(cat.activeOffer);
     activeOffer.active = false;
     activeOffer.save();
+    cat.unset('activeOffer');
+    cat.activeOffer = null;
   }
 
   let offerPriceId = getOfferPriceId(event.params.catId, event.transactionLogIndex);
@@ -140,8 +142,14 @@ export function handleAdoptionOfferCancelled(
     cat = createCat(getCatId(event.params.catId),  getOwnerId(event.transaction.from), event.block.timestamp);
   }
 
-  cat.unset('activeOffer');
-  cat.activeOffer = null;
+  if (cat.activeOffer) {
+    let activeOffer = getOfferPrice(cat.activeOffer);
+    activeOffer.active = false;
+    activeOffer.save();
+    cat.unset('activeOffer');
+    cat.activeOffer = null;
+  }
+
 
   let offerPriceId = getOfferPriceId(event.params.catId, event.transactionLogIndex);
   let offerPrice = getOfferPrice(offerPriceId);
@@ -168,6 +176,8 @@ export function handleAdoptionRequested(event: AdoptionRequested): void {
     let activeRequest = getRequestPrice(cat.activeRequest);
     activeRequest.active = false;
     activeRequest.save();
+    cat.unset('activeRequest');
+    cat.activeRequest = null;
   }
 
   let requestPriceId = getRequestPriceId(event.params.catId, event.transactionLogIndex);
@@ -177,9 +187,8 @@ export function handleAdoptionRequested(event: AdoptionRequested): void {
 
   cat.activeRequest = requestPrice.id;
   requestPrice.save();
-  cat.save();
   provenance.save();
-  requestPrice.save();
+  cat.save();
 }
 
 export function handleAdoptionRequestCancelled(
@@ -191,8 +200,13 @@ export function handleAdoptionRequestCancelled(
     cat = createCat(getCatId(event.params.catId), getOwnerId(event.transaction.from), event.block.timestamp);
   }
 
-  cat.unset('activeRequest');
-  cat.activeRequest = null;
+  if (cat.activeRequest) {
+    let activeRequest = getRequestPrice(cat.activeRequest);
+    activeRequest.active = false;
+    activeRequest.save();
+    cat.unset('activeRequest');
+    cat.activeRequest = null;
+  }
 
   let provenance = fetchProvenance(cat.id);
   let requestPriceId = getRequestPriceId(event.params.catId, event.transactionLogIndex);
