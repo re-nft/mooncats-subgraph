@@ -83,7 +83,7 @@ export const getRequestPrice = (requestId: string): RequestPrice => {
   return <RequestPrice>requestPrice;
 }
 
-export const createOfferPrice = (offerId: string, provenanceId: string, price: BigInt, to: Address, timestamp: BigInt): OfferPrice => {
+export const createOfferPrice = (offerId: string, provenanceId: string, price: BigInt, to: Address, timestamp: BigInt, catRescueTimestamp: BigInt): OfferPrice => {
   let offerPrice = new OfferPrice(offerId);
   let provenance = fetchProvenance(provenanceId);
   provenance.save();
@@ -91,6 +91,7 @@ export const createOfferPrice = (offerId: string, provenanceId: string, price: B
   offerPrice.price = price;
   offerPrice.to = to;
   offerPrice.timestamp = timestamp;
+  offerPrice.catRescueTimestamp = catRescueTimestamp;
   offerPrice.filled = false;
   offerPrice.active = true;
   return <OfferPrice>offerPrice;

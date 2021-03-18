@@ -20,6 +20,9 @@ import {
   getOfferPrice,
   getProvenance,
 } from "./helpers";
+import {
+  OfferPrice,
+} from "../generated/schema";
 
 let ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 let WRAPPER_CONTRACT = "0x7c40c393dc0f283f318791d746d894ddd3693572";
@@ -53,6 +56,13 @@ export function handleCatAdopted(event: CatAdopted): void {
     // todo: clearly this rescue timestamp is invalid
     cat = createCat(catId, getOwnerId(event.params.to), event.block.timestamp);
   }
+  let activeOffer = OfferPrice.load(cat.activeOffer);
+  if (activeOffer) {
+    activeOffer.active = false;
+    activeOffer.save();
+  }
+  cat.unset('activeOffer');
+  cat.activeOffer = null;
   let provenanceId = getProvenanceId(event.params.catId);
   let provenance = getProvenance(provenanceId);
 
@@ -176,7 +186,7 @@ export function handleAdoptionOffered(event: AdoptionOffered): void {
 
   let offerPriceId = getOfferPriceId(event.params.catId, event.transactionLogIndex);
   let provenanceId = getProvenanceId(event.params.catId);
-  let offerPrice = createOfferPrice(offerPriceId, provenanceId, event.params.price, event.params.toAddress, event.block.timestamp);
+  let offerPrice = createOfferPrice(offerPriceId, provenanceId, event.params.price, event.params.toAddress, event.block.timestamp, cat.rescueTimestamp);
   let provenance = getProvenance(provenanceId);
 
   cat.activeOffer = offerPrice.id;
@@ -203,7 +213,7 @@ export function handleAdoptionOfferCancelled(
   let offerPrice = getOfferPrice(offerPriceId);
   let provenance = fetchProvenance(cat.id);
   if (offerPrice == null) {
-    offerPrice = createOfferPrice(offerPriceId, provenance.id, BigInt.fromI32(0), Address.fromString(ZERO_ADDRESS), event.block.timestamp);
+    offerPrice = createOfferPrice(offerPriceId, provenance.id, BigInt.fromI32(0), Address.fromString(ZERO_ADDRESS), event.block.timestamp, cat.rescueTimestamp);
   }
 
   offerPrice.active = false;
