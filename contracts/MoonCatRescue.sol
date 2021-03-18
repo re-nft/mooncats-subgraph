@@ -382,6 +382,7 @@ contract MoonCatRescue {
             adoptionRequests[catId] = AdoptionRequest(false, catId, 0x0, 0);
         }
 
+        // from gets paid but gives up the cat
         pendingWithdrawals[from] += price;
 
         Transfer(from, to, 1);

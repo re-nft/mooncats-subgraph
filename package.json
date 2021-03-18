@@ -1,5 +1,5 @@
 {
-  "name": "renft",
+  "name": "renft-subgraph-mooncat",
   "license": "MIT",
   "scripts": {
     "codegen": "graph codegen",

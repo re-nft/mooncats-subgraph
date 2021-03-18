@@ -1,29 +1,44 @@
 type Cat @entity {
   id: ID!
-  owner: MoonRescuer!
+  owner: Owner!
+  rescueTimestamp: BigInt!
+  isWrapped: Boolean!
   name: String
-  inWallet: Boolean!
-  adoptionRequested: AdoptionRequested
-  adoptionOffered: AdoptionOffered
-  wasWrapped: Boolean!
-  isGenesis: Boolean!
+  provenance: Provenance
+  activeRequest: RequestPrice
+  activeOffer: OfferPrice
 }
 
-type MoonRescuer @entity {
+"many side is derived, one side in Cat is stored"
+type Owner @entity {
   id: ID!
   cats: [Cat!]! @derivedFrom(field: "owner")
 }
 
-type AdoptionRequested @entity {
+type RequestPrice @entity {
   id: ID!
+  provenance: Provenance!
   price: BigInt!
   from: Bytes!
-  cat: Cat! @derivedFrom(field: "adoptionRequested")
+  timestamp: BigInt!
+  "filled denotes if the price was filled"
+  filled: Boolean!
+  "one bit is redundant. can only be in the set {f:true,a:false},{f:false,a:false},{f:false,a:true}. denoting filled historic, cancelled historic and active. sometimes offers and requests are cancelled before they are filled."
+  active: Boolean!
 }
 
-type AdoptionOffered @entity {
+type OfferPrice @entity {
   id: ID!
+  provenance: Provenance!
   price: BigInt!
-  toAddress: Bytes!
-  cat: Cat! @derivedFrom(field: "adoptionOffered")
+  to: Bytes!
+  timestamp: BigInt!
+  filled: Boolean!
+  active: Boolean!
+}
+
+type Provenance @entity {
+  id: ID!
+  requestPrices: [RequestPrice!] @derivedFrom(field: "provenance")
+  offerPrices: [OfferPrice!] @derivedFrom(field: "provenance")
 }

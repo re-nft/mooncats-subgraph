@@ -1,69 +1,102 @@
-import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { Bytes, BigInt, Address, store } from "@graphprotocol/graph-ts";
+
+import {
+  CatRescued,
+  AdoptionOffered,
+  AdoptionRequested,
+} from "../generated/MoonCatRescue/MoonCatRescue";
+
 import {
   Cat,
-  MoonRescuer,
-  AdoptionRequested,
-  AdoptionOffered,
+  Owner,
+  RequestPrice,
+  OfferPrice,
+  Provenance,
 } from "../generated/schema";
 
-let ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+export const createOwner = (ownerId: string): Owner => {
+  let owner = new Owner(ownerId);
+  return <Owner>owner;
+}
 
-export const fetchCat = (id: Bytes): Cat => {
-  let _id = id.toHexString();
-  let cat = Cat.load(_id);
-  if (cat === null) {
-    cat = new Cat(_id);
-    cat.name = null;
-    cat.owner = ZERO_ADDRESS;
-    cat.inWallet = false;
-    cat.adoptionRequested = null;
-    cat.adoptionOffered = null;
-    cat.wasWrapped = false;
+export const getOwner = (ownerId: string): Owner => {
+  let owner = Owner.load(ownerId);
+  return <Owner>owner;
+};
+
+export const fetchOwner = (ownerId: string): Owner => {
+  let owner = getOwner(ownerId);
+  if (owner == null) {
+    owner = createOwner(ownerId);
   }
+  return <Owner>owner;
+}
+
+export const createCat = (catId: string, ownerId: string, rescueTimestamp: BigInt): Cat => {
+  let cat = new Cat(catId);
+  let owner = fetchOwner(ownerId);
+  owner.save();
+  cat.owner = owner.id;
+  cat.rescueTimestamp = rescueTimestamp;
+  cat.isWrapped = false;
+  return <Cat>cat;
+}
+
+export const getCat = (catId: string): Cat => {
+  let cat = Cat.load(catId);
   return <Cat>cat;
 };
 
-export const fetchMoonRescuer = (address: Bytes): MoonRescuer => {
-  let _address = address.toHexString();
-  let moonRescuer = MoonRescuer.load(_address);
-  if (moonRescuer === null) {
-    moonRescuer = new MoonRescuer(_address);
+export const createProvenance = (provenanceId: string): Provenance => {
+  let provenance = new Provenance(provenanceId);
+  return <Provenance>provenance;
+}
+
+export const getProvenance = (provenanceId: string): Provenance => {
+  let provenance = Provenance.load(provenanceId);
+  return <Provenance>provenance;
+}
+
+export const fetchProvenance = (provenanceId: string): Provenance => {
+  let provenance = getProvenance(provenanceId);
+  if (provenance == null) {
+    provenance = createProvenance(provenanceId);
   }
-  return <MoonRescuer>moonRescuer;
-};
+  return <Provenance>provenance;
+}
 
-export const createAdoptionRequested = (
-  id: string,
-  price: BigInt,
-  from: Address,
-  createdAt: BigInt
-): AdoptionRequested => {
-  let adoptionRequest = new AdoptionRequested(id);
-  adoptionRequest.price = price;
-  adoptionRequest.from = from;
-  adoptionRequest.timestamp = createdAt;
-  return <AdoptionRequested>adoptionRequest;
-};
+export const createRequestPrice = (requestId: string, provenanceId: string, price: BigInt, from: Address, timestamp: BigInt): RequestPrice => {
+  let requestPrice = new RequestPrice(requestId);
+  let provenance = fetchProvenance(provenanceId);
+  provenance.save();
+  requestPrice.provenance = provenance.id;
+  requestPrice.price = price;
+  requestPrice.from = from;
+  requestPrice.timestamp = timestamp;
+  requestPrice.filled = false;
+  requestPrice.active = true;
+  return <RequestPrice>requestPrice;
+}
 
-export const fetchAdoptionRequest = (id: string): AdoptionRequested => {
-  let adoptionRequested = AdoptionRequested.load(id);
-  return <AdoptionRequested>adoptionRequested;
-};
+export const getRequestPrice = (requestId: string): RequestPrice => {
+  let requestPrice = RequestPrice.load(requestId);
+  return <RequestPrice>requestPrice;
+}
 
-export const createAdoptionOffered = (
-  id: string,
-  price: BigInt,
-  toAddress: Address,
-  createdAt: BigInt
-): AdoptionOffered => {
-  let adoptionOffer = new AdoptionOffered(id);
-  adoptionOffer.price = price;
-  adoptionOffer.toAddress = toAddress;
-  adoptionOffer.timestamp = createdAt;
-  return <AdoptionOffered>adoptionOffer;
-};
+export const createOfferPrice = (offerId: string, provenanceId: string, price: BigInt, to: Address, timestamp: BigInt): OfferPrice => {
+  let offerPrice = new OfferPrice(offerId);
+  let provenance = fetchProvenance(provenanceId);
+  provenance.save();
+  offerPrice.provenance = provenance.id;
+  offerPrice.price = price;
+  offerPrice.to = to;
+  offerPrice.timestamp = timestamp;
+  offerPrice.filled = false;
+  offerPrice.active = true;
+  return <OfferPrice>offerPrice;
+}
 
-export const fetchAdoptionOffer = (id: string): AdoptionOffered => {
-  let adoptionOffered = AdoptionOffered.load(id);
-  return <AdoptionOffered>adoptionOffered;
-};
+export const getOfferPrice = (offerId: string): OfferPrice => {
+  let offerPrice = OfferPrice.load(offerId);
+  return <OfferPrice>offerPrice;
+}
