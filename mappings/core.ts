@@ -100,6 +100,7 @@ export function handleCatAdopted(event: CatAdopted): void {
   if (provenance != null) {
     provenance.save();
   }
+  newOwner.save();
   cat.save();
 }
 
