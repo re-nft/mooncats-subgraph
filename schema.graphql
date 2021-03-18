@@ -25,6 +25,7 @@ type RequestPrice @entity {
   filled: Boolean!
   "one bit is redundant. can only be in the set {f:true,a:false},{f:false,a:false},{f:false,a:true}. denoting filled historic, cancelled historic and active. sometimes offers and requests are cancelled before they are filled."
   active: Boolean!
+  catRescueTimestamp: BigInt!
 }
 
 type OfferPrice @entity {

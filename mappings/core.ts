@@ -61,7 +61,13 @@ export function handleCatAdopted(event: CatAdopted): void {
   if (activeOffer) {
     activeOffer.active = false;
   }
-
+  let activeOffer = OfferPrice.load(cat.activeOffer);
+  if (activeOffer) {
+    activeOffer.active = false;
+    activeOffer.save();
+  }
+  cat.unset('activeOffer');
+  cat.activeOffer = null;
   let provenanceId = getProvenanceId(event.params.catId);
   let provenance = getProvenance(provenanceId);
 
