@@ -1,6 +1,6 @@
 specVersion: 0.0.2
 description: MoonCatRescue
-repository: https://github.com/RENTFT/subgraph-mooncat
+repository: https://github.com/re-nft/subgraph-mooncat
 schema:
   file: ./schema.graphql
 dataSources:
